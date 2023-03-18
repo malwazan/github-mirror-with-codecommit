@@ -22,7 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Number of commits to fetch. 0 indicates all history for all branches and tags.
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -36,12 +36,13 @@ jobs:
         run: |
           echo "CODECOMMIT_URL=https://git-codecommit.${{ secrets.AWS_REGION }}.amazonaws.com/v1/repos/${{ secrets.CODECOMMIT_REPOSITORY }}" >> $GITHUB_ENV
       
+      # add /github/workspace as safe directory
       - run: git config --global --add safe.directory /github/workspace
 
+      # https://docs.aws.amazon.com/cli/latest/reference/codecommit/credential-helper/index.html
       - run: git config --global credential.'https://git-codecommit.*.amazonaws.com'.helper '!aws codecommit credential-helper $@'
-      
       - run: git config --global credential.UseHttpPath true
 
+      # https://docs.github.com/en/repositories/creating-and-managing-repositories/duplicating-a-repository
       - run: git remote add sync $CODECOMMIT_URL
-
       - run: git push sync --mirror
