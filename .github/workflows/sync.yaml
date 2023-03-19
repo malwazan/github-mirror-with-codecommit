@@ -45,4 +45,5 @@ jobs:
 
       # https://docs.github.com/en/repositories/creating-and-managing-repositories/duplicating-a-repository
       - run: git remote add sync $CODECOMMIT_URL
-      - run: git push sync --mirror
+      # - run: git push sync --mirror
+      - run: git push --tags --force --prune sync "refs/remotes/origin/*:refs/heads/*"
