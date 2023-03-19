@@ -1,0 +1,54 @@
+name: Sync Github with CodeCommit 2
+
+on:
+  push:
+    tags-ignore:
+      - '*'
+    branches:
+      - '*'
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
+jobs:
+  sync:
+    name: sync
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Number of commits to fetch. 0 indicates all history for all branches and tags.
+      
+      - name: Install gitPython dependency
+        run: pip install GitPython
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.CODECOMMIT_ROLE }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      
+      - name: Create some environment variables
+        run: |
+          echo "CODECOMMIT_URL=https://git-codecommit.${{ secrets.AWS_REGION }}.amazonaws.com/v1/repos/${{ secrets.CODECOMMIT_REPOSITORY_2 }}" >> $GITHUB_ENV
+      
+      # add /github/workspace as safe directory
+      - run: git config --global --add safe.directory /github/workspace
+
+      # https://docs.aws.amazon.com/cli/latest/reference/codecommit/credential-helper/index.html
+      - run: git config --global credential.'https://git-codecommit.*.amazonaws.com'.helper '!aws codecommit credential-helper $@'
+      - run: git config --global credential.UseHttpPath true
+
+      # https://docs.github.com/en/repositories/creating-and-managing-repositories/duplicating-a-repository
+      - run: git remote add sync $CODECOMMIT_URL
+
+      - run: pwd
+
+      - run: ls -la
+      
+      - run: python incremental-repo-migration.py -r "sync"
