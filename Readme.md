@@ -1,6 +1,6 @@
 # Sync GitHub Repository to AWS CodeCommit using GitHub Actions
 
-## Setup
+## Method 1
 
 ### Create CodeCommit Repository
 - Go go AWS CodeCommit and create a repository
@@ -17,8 +17,14 @@ Create the following GitHub secrets
 - `CODECOMMIT_REPOSITORY` : Codecommit repository name
 - `CODECOMMIT_ROLE` : IAM role arn which was created in previous step
 
+## Method 2
+
+Method 2 is implemented which uses aws codecommit migration in increments for large repositories. Testing in progress for method 2.
+
 ## References & Inspirations
 - https://github.com/marketplace/actions/github-to-aws-codecommit-sync
   The mirror action is causing some troubles. It is trying to delete codecommit default branch. 
 - https://github.com/pixta-dev/repository-mirroring-action
   Currently using this pattern
+- https://docs.aws.amazon.com/codecommit/latest/userguide/how-to-push-large-repositories.html#how-to-push-large-repositories-prereq
+  For large repository migration to aws codecommit
