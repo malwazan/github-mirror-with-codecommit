@@ -20,6 +20,8 @@ Create the following GitHub secrets
 ## Method 2
 
 Method 2 is implemented which uses aws codecommit migration in increments for large repositories. Testing in progress for method 2.
+Most of the issues are fixed in batch commit but if commit is ammended `git commit --amend`, it will fail the python script.
+Next step is to fix the python script accordingly
 
 ## References & Inspirations
 - https://github.com/marketplace/actions/github-to-aws-codecommit-sync

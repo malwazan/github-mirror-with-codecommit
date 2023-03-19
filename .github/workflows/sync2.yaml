@@ -23,6 +23,7 @@ jobs:
         run: |
           echo "CODECOMMIT_URL=https://git-codecommit.${{ secrets.AWS_REGION }}.amazonaws.com/v1/repos/${{ secrets.CODECOMMIT_REPOSITORY_2 }}" >> $GITHUB_ENV
           echo "REPO_URL=https://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
+          echo "CODE_DIR=./repo-mirror" >> $GITHUB_ENV
 
       # - name: Create workdir environment variable
       #   run: |
@@ -36,14 +37,14 @@ jobs:
           
       - name: Mirror Repository
         run: |
-          git clone --mirror $REPO_URL ./repo-mirror
-          cd ./repo-mirror
+          git clone --mirror $REPO_URL $CODE_DIR
+          cd $CODE_DIR
           ls -la
           git branch -a
         # cd $(basename $REPO_URL)
       
-      - name: Install gitPython dependency
-        run: pip install GitPython
+      - name: Install Python Dependencies
+        run: pip install -r requirements.txt
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -60,13 +61,7 @@ jobs:
 
       # https://docs.github.com/en/repositories/creating-and-managing-repositories/duplicating-a-repository
       - run: git remote add sync $CODECOMMIT_URL
-        working-directory: ./repo-mirror
-
-      # - run: pwd
-
-      # - run: ls -la
-
-      # - run: git branch -a
+        working-directory: ${{ env.CODE_DIR }}
       
       - name: Mirror Repository
-        run: python incremental-repo-migration.py -l "./repo-mirror" -r "sync" 
+        run: python incremental-repo-migration.py -l $CODE_DIR -r "sync" 
