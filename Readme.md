@@ -17,3 +17,4 @@ Create the following GitHub secrets
 - `CODECOMMIT_REPOSITORY` : Codecommit repository name
 - `CODECOMMIT_ROLE` : IAM role arn which was created in previous step
 
+-- 
