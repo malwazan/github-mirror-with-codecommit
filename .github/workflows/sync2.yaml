@@ -19,10 +19,28 @@ jobs:
       matrix:
         node-version: [16.x]
     steps:
+      - name: Create some environment variables
+        run: |
+          echo "CODECOMMIT_URL=https://git-codecommit.${{ secrets.AWS_REGION }}.amazonaws.com/v1/repos/${{ secrets.CODECOMMIT_REPOSITORY_2 }}" >> $GITHUB_ENV
+          echo "REPO_URL=https://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
+
+      # - name: Create workdir environment variable
+      #   run: |
+      #     TEMPNAME=$(basename $REPO_URL)
+      #     echo "WORKDIR=./$TEMPNAME" >> $GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Number of commits to fetch. 0 indicates all history for all branches and tags.
+          fetch-depth: 1 # Number of commits to fetch. 0 indicates all history for all branches and tags.
+          
+      - name: Mirror Repository
+        run: |
+          git clone --mirror $REPO_URL ./repo-mirror
+          cd ./repo-mirror
+          ls -la
+          git branch -a
+        # cd $(basename $REPO_URL)
       
       - name: Install gitPython dependency
         run: pip install GitPython
@@ -33,10 +51,6 @@ jobs:
           role-to-assume: ${{ secrets.CODECOMMIT_ROLE }}
           aws-region: ${{ secrets.AWS_REGION }}
       
-      - name: Create some environment variables
-        run: |
-          echo "CODECOMMIT_URL=https://git-codecommit.${{ secrets.AWS_REGION }}.amazonaws.com/v1/repos/${{ secrets.CODECOMMIT_REPOSITORY_2 }}" >> $GITHUB_ENV
-      
       # add /github/workspace as safe directory
       - run: git config --global --add safe.directory /github/workspace
 
@@ -46,9 +60,13 @@ jobs:
 
       # https://docs.github.com/en/repositories/creating-and-managing-repositories/duplicating-a-repository
       - run: git remote add sync $CODECOMMIT_URL
+        working-directory: ./repo-mirror
 
-      - run: pwd
+      # - run: pwd
 
-      - run: ls -la
+      # - run: ls -la
+
+      # - run: git branch -a
       
-      - run: python incremental-repo-migration.py -r "sync"
+      - name: Mirror Repository
+        run: python incremental-repo-migration.py -l "./repo-mirror" -r "sync" 
