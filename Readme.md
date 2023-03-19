@@ -17,4 +17,8 @@ Create the following GitHub secrets
 - `CODECOMMIT_REPOSITORY` : Codecommit repository name
 - `CODECOMMIT_ROLE` : IAM role arn which was created in previous step
 
--- 
+## References & Inspirations
+- https://github.com/marketplace/actions/github-to-aws-codecommit-sync
+  The mirror action is causing some troubles. It is trying to delete codecommit default branch. 
+- https://github.com/pixta-dev/repository-mirroring-action
+  Currently using this pattern
