@@ -1,4 +1,4 @@
-name: Sync Github with CodeCommit
+name: Sync Github with CodeCommit 2
 
 on:
   push:
