@@ -19,10 +19,27 @@ jobs:
       matrix:
         node-version: [16.x]
     steps:
+      - name: Create some environment variables
+        run: |
+          echo "CODECOMMIT_URL=https://git-codecommit.${{ secrets.AWS_REGION }}.amazonaws.com/v1/repos/${{ secrets.CODECOMMIT_REPOSITORY }}" >> $GITHUB_ENV
+          echo "REPO_URL=https://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0 # Number of commits to fetch. 0 indicates all history for all branches and tags.
+      
+      # - name: Fetch all branches
+      #   run: |
+      #     git remote add target $REPO_URL
+      #     git fetch --all
+      #     git fetch --tags
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - run: git branch -a
+
+      - run: git tag -l
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -31,10 +48,6 @@ jobs:
           # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-to-assume: ${{ secrets.CODECOMMIT_ROLE }}
           aws-region: ${{ secrets.AWS_REGION }}
-      
-      - name: Create some environment variables
-        run: |
-          echo "CODECOMMIT_URL=https://git-codecommit.${{ secrets.AWS_REGION }}.amazonaws.com/v1/repos/${{ secrets.CODECOMMIT_REPOSITORY }}" >> $GITHUB_ENV
       
       # add /github/workspace as safe directory
       - run: git config --global --add safe.directory /github/workspace
@@ -47,3 +60,4 @@ jobs:
       - run: git remote add sync $CODECOMMIT_URL
       # - run: git push sync --mirror
       - run: git push --tags --force --prune sync "refs/remotes/origin/*:refs/heads/*"
+      # - run: git push --force sync --all --follow-tags
